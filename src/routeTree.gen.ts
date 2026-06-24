@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendedorRouteImport } from './routes/vendedor'
+import { Route as ResetRouteImport } from './routes/reset'
 import { Route as RegistroGaleriaRouteImport } from './routes/registro-galeria'
 import { Route as RegistroAmbulanteRouteImport } from './routes/registro-ambulante'
+import { Route as RecuperarRouteImport } from './routes/recuperar'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as LicenciaRouteImport } from './routes/licencia'
 import { Route as ConfirmacionRouteImport } from './routes/confirmacion'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +22,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const VendedorRoute = VendedorRouteImport.update({
   id: '/vendedor',
   path: '/vendedor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetRoute = ResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroGaleriaRoute = RegistroGaleriaRouteImport.update({
@@ -29,6 +37,16 @@ const RegistroGaleriaRoute = RegistroGaleriaRouteImport.update({
 const RegistroAmbulanteRoute = RegistroAmbulanteRouteImport.update({
   id: '/registro-ambulante',
   path: '/registro-ambulante',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarRoute = RecuperarRouteImport.update({
+  id: '/recuperar',
+  path: '/recuperar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LicenciaRoute = LicenciaRouteImport.update({
@@ -51,16 +69,22 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/confirmacion': typeof ConfirmacionRoute
   '/licencia': typeof LicenciaRoute
+  '/login': typeof LoginRoute
+  '/recuperar': typeof RecuperarRoute
   '/registro-ambulante': typeof RegistroAmbulanteRoute
   '/registro-galeria': typeof RegistroGaleriaRoute
+  '/reset': typeof ResetRoute
   '/vendedor': typeof VendedorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/confirmacion': typeof ConfirmacionRoute
   '/licencia': typeof LicenciaRoute
+  '/login': typeof LoginRoute
+  '/recuperar': typeof RecuperarRoute
   '/registro-ambulante': typeof RegistroAmbulanteRoute
   '/registro-galeria': typeof RegistroGaleriaRoute
+  '/reset': typeof ResetRoute
   '/vendedor': typeof VendedorRoute
 }
 export interface FileRoutesById {
@@ -68,8 +92,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/confirmacion': typeof ConfirmacionRoute
   '/licencia': typeof LicenciaRoute
+  '/login': typeof LoginRoute
+  '/recuperar': typeof RecuperarRoute
   '/registro-ambulante': typeof RegistroAmbulanteRoute
   '/registro-galeria': typeof RegistroGaleriaRoute
+  '/reset': typeof ResetRoute
   '/vendedor': typeof VendedorRoute
 }
 export interface FileRouteTypes {
@@ -78,24 +105,33 @@ export interface FileRouteTypes {
     | '/'
     | '/confirmacion'
     | '/licencia'
+    | '/login'
+    | '/recuperar'
     | '/registro-ambulante'
     | '/registro-galeria'
+    | '/reset'
     | '/vendedor'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/confirmacion'
     | '/licencia'
+    | '/login'
+    | '/recuperar'
     | '/registro-ambulante'
     | '/registro-galeria'
+    | '/reset'
     | '/vendedor'
   id:
     | '__root__'
     | '/'
     | '/confirmacion'
     | '/licencia'
+    | '/login'
+    | '/recuperar'
     | '/registro-ambulante'
     | '/registro-galeria'
+    | '/reset'
     | '/vendedor'
   fileRoutesById: FileRoutesById
 }
@@ -103,8 +139,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfirmacionRoute: typeof ConfirmacionRoute
   LicenciaRoute: typeof LicenciaRoute
+  LoginRoute: typeof LoginRoute
+  RecuperarRoute: typeof RecuperarRoute
   RegistroAmbulanteRoute: typeof RegistroAmbulanteRoute
   RegistroGaleriaRoute: typeof RegistroGaleriaRoute
+  ResetRoute: typeof ResetRoute
   VendedorRoute: typeof VendedorRoute
 }
 
@@ -115,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/vendedor'
       fullPath: '/vendedor'
       preLoaderRoute: typeof VendedorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset': {
+      id: '/reset'
+      path: '/reset'
+      fullPath: '/reset'
+      preLoaderRoute: typeof ResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro-galeria': {
@@ -129,6 +175,20 @@ declare module '@tanstack/react-router' {
       path: '/registro-ambulante'
       fullPath: '/registro-ambulante'
       preLoaderRoute: typeof RegistroAmbulanteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar': {
+      id: '/recuperar'
+      path: '/recuperar'
+      fullPath: '/recuperar'
+      preLoaderRoute: typeof RecuperarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/licencia': {
@@ -159,10 +219,23 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfirmacionRoute: ConfirmacionRoute,
   LicenciaRoute: LicenciaRoute,
+  LoginRoute: LoginRoute,
+  RecuperarRoute: RecuperarRoute,
   RegistroAmbulanteRoute: RegistroAmbulanteRoute,
   RegistroGaleriaRoute: RegistroGaleriaRoute,
+  ResetRoute: ResetRoute,
   VendedorRoute: VendedorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

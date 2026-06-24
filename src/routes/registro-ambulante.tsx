@@ -22,15 +22,20 @@ const RUBROS: { value: Rubro; label: string; emoji: string }[] = [
 function RegistroAmbulante() {
   const router = useRouter();
   const [dni, setDni] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
   const [negocio, setNegocio] = useState("");
   const [rubro, setRubro] = useState<Rubro>("");
   const [referencia, setReferencia] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   function validar() {
     const e: Record<string, string> = {};
     if (!/^\d{8}$/.test(dni)) e.dni = "Tu DNI debe tener 8 números";
+    if (!correo.includes("@")) e.correo = "Ingresa un correo electrónico válido";
+    if (password.length < 6) e.password = "La contraseña debe tener al menos 6 caracteres";
     if (negocio.trim().length < 2) e.negocio = "Escribe el nombre de tu negocio";
     if (!rubro) e.rubro = "Elige qué vendes";
     if (referencia.trim().length < 4) e.referencia = "Cuéntanos dónde vendes (ejemplo: frente a Los Andes)";
@@ -40,11 +45,20 @@ function RegistroAmbulante() {
 
   async function onSubmit(ev: React.FormEvent) {
     ev.preventDefault();
+    setServerError("");
     if (!validar()) return;
     setLoading(true);
     try {
-      // POST /vendedores  (FastAPI)
-      await apiPost("/vendedores", { dni, negocio, rubro, referencia }).catch(() => null);
+      // POST /negocios/registrar_ambulante  (FastAPI)
+      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "/api"}/negocios/registrar_ambulante`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dni, correo, password, negocio, rubro, referencia }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Ocurrió un error al registrarse");
+      }
       const resumen = {
         tipo: "ambulante" as const,
         items: [
@@ -53,10 +67,12 @@ function RegistroAmbulante() {
           { label: "Rubro", value: RUBROS.find((r) => r.value === rubro)?.label ?? "" },
           { label: "Ubicación", value: referencia },
         ],
-        next: "/vendedor",
+        next: "/login",
       };
       sessionStorage.setItem("fy_resumen", JSON.stringify(resumen));
       router.navigate({ to: "/confirmacion" });
+    } catch (err: any) {
+      setServerError(err.message);
     } finally {
       setLoading(false);
     }
@@ -88,7 +104,9 @@ function RegistroAmbulante() {
         </div>
 
         <h1 className="fy-h1">Cuéntanos de ti</h1>
-        <p className="fy-sub">Solo te haremos 4 preguntas. Es rápido.</p>
+        <p className="fy-sub">Por favor completa estos datos. Es rápido.</p>
+
+        {serverError && <div className="fy-error" style={{ marginBottom: '1rem' }}>❌ {serverError}</div>}
 
         <form onSubmit={onSubmit} noValidate>
           <div className="fy-field">
@@ -108,6 +126,36 @@ function RegistroAmbulante() {
             />
             <div className="fy-help">Son los 8 números de tu documento.</div>
             {errors.dni && <div className="fy-error">⚠️ {errors.dni}</div>}
+          </div>
+
+          <div className="fy-field">
+            <label className="fy-label" htmlFor="correo">
+              <span className="fy-label__icon" aria-hidden>📧</span> Tu Correo
+            </label>
+            <input
+              id="correo"
+              className="fy-input"
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="Ej. juan@correo.com"
+            />
+            {errors.correo && <div className="fy-error">⚠️ {errors.correo}</div>}
+          </div>
+
+          <div className="fy-field">
+            <label className="fy-label" htmlFor="password">
+              <span className="fy-label__icon" aria-hidden>🔒</span> Contraseña
+            </label>
+            <input
+              id="password"
+              className="fy-input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+            />
+            {errors.password && <div className="fy-error">⚠️ {errors.password}</div>}
           </div>
 
           <div className="fy-field">

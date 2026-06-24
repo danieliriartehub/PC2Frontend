@@ -37,6 +37,13 @@ function Welcome() {
             <span className="fy-choice__hint">Tengo un stand dentro de una galería</span>
           </span>
         </Link>
+
+        <div style={{ textAlign: "center", marginTop: "2rem" }}>
+          <p className="fy-sub" style={{ marginBottom: "0.5rem" }}>¿Ya tienes una cuenta?</p>
+          <Link to="/login" className="fy-btn fy-btn--outline" style={{ display: "inline-block", width: "auto", padding: "0.5rem 1.5rem" }}>
+            Iniciar Sesión
+          </Link>
+        </div>
       </main>
     </div>
   );

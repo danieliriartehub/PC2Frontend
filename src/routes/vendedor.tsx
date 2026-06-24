@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
 
 export const Route = createFileRoute("/vendedor")({
@@ -23,6 +24,33 @@ function Light({ estado }: { estado: Estado }) {
 }
 
 function Vendedor() {
+  const router = useRouter();
+  const [nombre, setNombre] = useState("Vendedor");
+
+  useEffect(() => {
+    // Verificar si hay token, si no enviar a login (DevSecOps)
+    const token = sessionStorage.getItem("fy_token");
+    if (!token) {
+      router.navigate({ to: "/login" });
+    }
+    
+    // Obtener info del resumen temporal si existe
+    const res = sessionStorage.getItem("fy_resumen");
+    if (res) {
+      try {
+        const parsed = JSON.parse(res);
+        const nom = parsed.items.find((i: any) => i.label === "Negocio")?.value;
+        if (nom) setNombre(nom);
+      } catch(e) {}
+    }
+  }, [router]);
+
+  function handleLogout() {
+    sessionStorage.removeItem("fy_token");
+    sessionStorage.removeItem("fy_resumen");
+    router.navigate({ to: "/" });
+  }
+
   // Datos demo — reemplazar con fetch a /licencia, /trabajadores, /negocio
   const estadoLicencia: Estado = "warn";
 
@@ -30,7 +58,16 @@ function Vendedor() {
     <div className="fy-app">
       <Header />
       <main className="fy-page">
-        <h1 className="fy-h1">Hola, Rosita 👋</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 className="fy-h1">Hola, {nombre} 👋</h1>
+          <button 
+            onClick={handleLogout} 
+            className="fy-btn fy-btn--outline" 
+            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', width: 'auto' }}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
         <p className="fy-sub">Estas son tus 3 cosas importantes:</p>
 
         <div className="fy-cards">

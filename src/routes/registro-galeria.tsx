@@ -8,44 +8,72 @@ export const Route = createFileRoute("/registro-galeria")({
   component: RegistroGaleria,
 });
 
+type Rubro = "" | "ropa_mujer" | "ropa_hombre" | "ropa_nino" | "calzado" | "accesorios" | "telas";
+
+const RUBROS: { value: Rubro; label: string; emoji: string }[] = [
+  { value: "ropa_mujer", label: "Vendo ropa de mujer", emoji: "👗" },
+  { value: "ropa_hombre", label: "Vendo ropa de hombre", emoji: "👔" },
+  { value: "ropa_nino", label: "Vendo ropa de niños", emoji: "🧒" },
+  { value: "calzado", label: "Vendo calzado", emoji: "👟" },
+  { value: "accesorios", label: "Vendo accesorios", emoji: "👜" },
+  { value: "telas", label: "Vendo telas", emoji: "🧵" },
+];
+
 function RegistroGaleria() {
   const router = useRouter();
-  const [ruc, setRuc] = useState("");
-  const [galeria, setGaleria] = useState("");
-  const [stand, setStand] = useState("");
-  const [piso, setPiso] = useState("");
-  const [pass, setPass] = useState("");
+  const [dni, setDni] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+  const [negocio, setNegocio] = useState("");
+  const [rubro, setRubro] = useState<Rubro>("");
+  const [galeria_nombre, setGaleriaNombre] = useState("");
+  const [stand_numero, setStandNumero] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   function validar() {
     const e: Record<string, string> = {};
-    if (!/^\d{11}$/.test(ruc)) e.ruc = "Tu RUC debe tener 11 números";
-    if (galeria.trim().length < 2) e.galeria = "Escribe el nombre de la galería";
-    if (!stand.trim()) e.stand = "Escribe el número de tu stand";
-    if (!piso.trim()) e.piso = "Elige el piso";
-    if (pass.length < 4) e.pass = "Tu contraseña debe tener al menos 4 caracteres";
+    if (!/^\d{8}$/.test(dni)) e.dni = "Tu DNI debe tener 8 números";
+    if (!correo.includes("@")) e.correo = "Ingresa un correo electrónico válido";
+    if (password.length < 6) e.password = "La contraseña debe tener al menos 6 caracteres";
+    if (negocio.trim().length < 2) e.negocio = "Escribe el nombre de tu negocio";
+    if (!rubro) e.rubro = "Elige qué vendes";
+    if (galeria_nombre.trim().length < 2) e.galeria_nombre = "Escribe el nombre de la galería";
+    if (!stand_numero.trim()) e.stand_numero = "Escribe el número de stand/puesto";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
   async function onSubmit(ev: React.FormEvent) {
     ev.preventDefault();
+    setServerError("");
     if (!validar()) return;
     setLoading(true);
     try {
-      await apiPost("/negocios-galeria", { ruc, galeria, stand, piso, password: pass }).catch(() => null);
+      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "/api"}/negocios/registrar_galeria`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dni, correo, password, negocio, rubro, galeria_nombre, stand_numero }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Ocurrió un error al registrarse");
+      }
       const resumen = {
         tipo: "galeria" as const,
         items: [
-          { label: "RUC", value: ruc },
-          { label: "Galería", value: galeria },
-          { label: "Stand", value: `Piso ${piso} · Stand ${stand}` },
+          { label: "DNI", value: dni },
+          { label: "Negocio", value: negocio },
+          { label: "Rubro", value: RUBROS.find((r) => r.value === rubro)?.label ?? "" },
+          { label: "Ubicación", value: `${galeria_nombre} - Stand ${stand_numero}` },
         ],
-        next: "/vendedor",
+        next: "/login",
       };
       sessionStorage.setItem("fy_resumen", JSON.stringify(resumen));
       router.navigate({ to: "/confirmacion" });
+    } catch (err: any) {
+      setServerError(err.message);
     } finally {
       setLoading(false);
     }
@@ -70,8 +98,10 @@ function RegistroGaleria() {
     <div className="fy-app">
       <Header showBack to="/" />
       <main className="fy-page">
-        <h1 className="fy-h1">Datos de tu galería</h1>
-        <p className="fy-sub">Estos datos nos ayudan a encontrar tu negocio.</p>
+        <h1 className="fy-h1">Cuéntanos de ti</h1>
+        <p className="fy-sub">Por favor completa estos datos. Es rápido.</p>
+
+        {serverError && <div className="fy-error" style={{ marginBottom: '1rem' }}>❌ {serverError}</div>}
 
         <form onSubmit={onSubmit} noValidate>
           <div className="fy-field">
@@ -84,59 +114,90 @@ function RegistroGaleria() {
               type="tel"
               inputMode="numeric"
               maxLength={11}
-              value={ruc}
-              onChange={(e) => setRuc(e.target.value.replace(/\D/g, ""))}
-              placeholder="Ej. 20123456789"
+              value={dni}
+              onChange={(e) => setDni(e.target.value.replace(/\D/g, ""))}
+              placeholder="Ej. 12345678"
             />
-            <div className="fy-help">Son los 11 números de tu RUC.</div>
-            {errors.ruc && <div className="fy-error">⚠️ {errors.ruc}</div>}
+            <div className="fy-help">Son los 8 números de tu documento.</div>
+            {errors.dni && <div className="fy-error">⚠️ {errors.dni}</div>}
+          </div>
+
+          <div className="fy-field">
+            <label className="fy-label" htmlFor="correo">
+              <span className="fy-label__icon" aria-hidden>📧</span> Tu Correo
+            </label>
+            <input
+              id="correo"
+              className="fy-input"
+              type="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="Ej. juan@correo.com"
+            />
+            {errors.correo && <div className="fy-error">⚠️ {errors.correo}</div>}
+          </div>
+
+          <div className="fy-field">
+            <label className="fy-label" htmlFor="password">
+              <span className="fy-label__icon" aria-hidden>🔒</span> Contraseña
+            </label>
+            <input
+              id="password"
+              className="fy-input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+            />
+            {errors.password && <div className="fy-error">⚠️ {errors.password}</div>}
+          </div>
+
+          <div className="fy-field">
+            <label className="fy-label" htmlFor="negocio">
+              <span className="fy-label__icon" aria-hidden>🏷️</span> Nombre de tu negocio
+            </label>
+            <input
+              id="negocio"
+              className="fy-input"
+              value={negocio}
+              onChange={(e) => setNegocio(e.target.value)}
+              placeholder="Ej. Modas Rosita"
+            />
+            {errors.negocio && <div className="fy-error">⚠️ {errors.negocio}</div>}
+          </div>
+
+          <div className="fy-field">
+            <label className="fy-label" htmlFor="rubro">
+              <span className="fy-label__icon" aria-hidden>🛍️</span> ¿Qué vendes?
+            </label>
+            <select
+              id="rubro"
+              className="fy-select"
+              value={rubro}
+              onChange={(e) => setRubro(e.target.value as Rubro)}
+            >
+              <option value="">Elige una opción…</option>
+              {RUBROS.map((r) => (
+                <option key={r.value} value={r.value}>{r.emoji}  {r.label}</option>
+              ))}
+            </select>
+            {errors.rubro && <div className="fy-error">⚠️ {errors.rubro}</div>}
           </div>
 
           <div className="fy-field">
             <label className="fy-label" htmlFor="gal">
               <span className="fy-label__icon" aria-hidden>🏬</span> Nombre de la galería
             </label>
-            <input id="gal" className="fy-input" value={galeria} onChange={(e) => setGaleria(e.target.value)} placeholder="Ej. Galería Los Andes" />
-            {errors.galeria && <div className="fy-error">⚠️ {errors.galeria}</div>}
+            <input id="gal" className="fy-input" value={galeria_nombre} onChange={(e) => setGaleriaNombre(e.target.value)} placeholder="Ej. Galería Los Andes" />
+            {errors.galeria_nombre && <div className="fy-error">⚠️ {errors.galeria_nombre}</div>}
           </div>
 
           <div className="fy-field">
             <label className="fy-label" htmlFor="stand">
               <span className="fy-label__icon" aria-hidden>🔢</span> Número de stand
             </label>
-            <input id="stand" className="fy-input" inputMode="numeric" value={stand} onChange={(e) => setStand(e.target.value)} placeholder="Ej. 214" />
-            {errors.stand && <div className="fy-error">⚠️ {errors.stand}</div>}
-          </div>
-
-          <div className="fy-field">
-            <label className="fy-label" htmlFor="piso">
-              <span className="fy-label__icon" aria-hidden>🏢</span> Piso
-            </label>
-            <select id="piso" className="fy-select" value={piso} onChange={(e) => setPiso(e.target.value)}>
-              <option value="">Elige el piso…</option>
-              <option value="1">Piso 1</option>
-              <option value="2">Piso 2</option>
-              <option value="3">Piso 3</option>
-              <option value="4">Piso 4</option>
-              <option value="5">Piso 5 o más</option>
-            </select>
-            {errors.piso && <div className="fy-error">⚠️ {errors.piso}</div>}
-          </div>
-
-          <div className="fy-field">
-            <label className="fy-label" htmlFor="pass">
-              <span className="fy-label__icon" aria-hidden>🔒</span> Crea una contraseña
-            </label>
-            <input
-              id="pass"
-              className="fy-input"
-              type="password"
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
-              placeholder="Mínimo 4 caracteres"
-            />
-            <div className="fy-help">Úsala la próxima vez que entres.</div>
-            {errors.pass && <div className="fy-error">⚠️ {errors.pass}</div>}
+            <input id="stand" className="fy-input" inputMode="numeric" value={stand_numero} onChange={(e) => setStandNumero(e.target.value)} placeholder="Ej. 214" />
+            {errors.stand_numero && <div className="fy-error">⚠️ {errors.stand_numero}</div>}
           </div>
         </form>
 
