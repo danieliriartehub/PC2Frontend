@@ -24,7 +24,7 @@ function Recuperar() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "https://pc2backend-production.up.railway.app/api"}/auth/recuperar_password`, {
+      const res = await fetch("https://pc2backend-production.up.railway.app/api/auth/recuperar_password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo }),
