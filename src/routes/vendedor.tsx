@@ -46,6 +46,14 @@ interface Licencia {
   entidad_emisora: string | null;
 }
 
+interface RegistroTributario {
+  id: number;
+  negocio_id: number;
+  ruc: string;
+  razon_social: string;
+  estado_sunat: string;
+}
+
 interface Trabajador {
   id: number;
   negocio_id: number;
@@ -53,6 +61,7 @@ interface Trabajador {
   nombre_completo: string;
   cargo: string | null;
   estado: string;
+  tiene_contrato: boolean;
 }
 
 interface Dashboard {
@@ -62,6 +71,7 @@ interface Dashboard {
   negocios: Negocio[];
   licencias: Licencia[];
   trabajadores: Trabajador[];
+  registro_tributario: RegistroTributario | null;
 }
 
 function calcEstadoLicencia(lic: Licencia | null): Estado {
@@ -97,6 +107,13 @@ function Vendedor() {
   const [lEntidad, setLEntidad] = useState("Municipalidad");
   const [lLoading, setLLoading] = useState(false);
   const [lError, setLError] = useState("");
+
+  // Modal SUNAT
+  const [showAddSunat, setShowAddSunat] = useState(false);
+  const [sRuc, setSRuc] = useState("");
+  const [sRazon, setSRazon] = useState("");
+  const [sLoading, setSLoading] = useState(false);
+  const [sError, setSError] = useState("");
 
   const token = sessionStorage.getItem("fy_token");
 
@@ -203,6 +220,44 @@ function Vendedor() {
     }
   }
 
+  async function handleAddSunat(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!dashboard || dashboard.negocios.length === 0) return;
+    setSError("");
+    setSLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/negocios/sunat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          negocio_id: dashboard.negocios[0].id,
+          ruc: sRuc,
+          razon_social: sRazon,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Error al registrar RUC");
+      }
+      setShowAddSunat(false);
+      fetchDashboard();
+    } catch (err: any) {
+      setSError(err.message);
+    } finally {
+      setSLoading(false);
+    }
+  }
+
+  async function handleToggleContrato(id: number) {
+    try {
+      await fetch(`${API_BASE}/trabajadores/${id}/contrato`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchDashboard();
+    } catch {}
+  }
+
   if (loading) {
     return (
       <div className="fy-app">
@@ -250,7 +305,39 @@ function Vendedor() {
             Cerrar Sesión
           </button>
         </div>
-        <p className="fy-sub">Estas son tus 3 cosas importantes:</p>
+        <p className="fy-sub">Estas son tus prioridades de hoy:</p>
+
+        {/* === SEMÁFORO DE FORMALIZACIÓN === */}
+        {(() => {
+          let score = 0;
+          if (estadoLicencia === "ok" || estadoLicencia === "warn") score += 33;
+          if (dashboard?.registro_tributario) score += 33;
+          const trabajadores = dashboard?.trabajadores || [];
+          const conContrato = trabajadores.filter((t) => t.tiene_contrato).length;
+          if (trabajadores.length === 0 || conContrato === trabajadores.length) score += 34; // si no tiene trabajadores o todos tienen contrato
+          
+          let color = score < 50 ? "#e74c3c" : score < 90 ? "#f39c12" : "#2ecc71";
+          return (
+            <div style={{
+              background: "#fff", padding: "1rem", borderRadius: "12px", 
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)", marginBottom: "1.5rem",
+              border: `2px solid ${color}`
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                <strong style={{ fontSize: "1.1rem" }}>🚦 Nivel de Formalización</strong>
+                <span style={{ fontWeight: "bold", color }}>{score}%</span>
+              </div>
+              <div style={{ background: "#eee", height: "8px", borderRadius: "4px", overflow: "hidden" }}>
+                <div style={{ background: color, height: "100%", width: `${score}%`, transition: "width 0.5s ease" }} />
+              </div>
+              <div style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", textAlign: "center" }}>
+                <span style={{ color: estadoLicencia === "ok" ? "#2ecc71" : "#e74c3c" }}>1. Licencia</span>
+                <span style={{ color: dashboard?.registro_tributario ? "#2ecc71" : "#e74c3c" }}>2. SUNAT</span>
+                <span style={{ color: (trabajadores.length === 0 || conContrato === trabajadores.length) ? "#2ecc71" : "#e74c3c" }}>3. Contratos</span>
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="fy-cards">
           {/* === LICENCIA === */}
@@ -293,14 +380,15 @@ function Vendedor() {
             {trabajadores.length > 0 && (
               <div style={{ marginBottom: "0.5rem" }}>
                 {trabajadores.map((t) => (
-                  <div key={t.id} className="fy-info-row" style={{ fontSize: "0.85rem" }}>
-                    <span>👤 {t.nombre_completo} {t.cargo ? `(${t.cargo})` : ""}</span>
-                    <button
-                      onClick={() => handleRemoveWorker(t.id)}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c", fontSize: "0.8rem" }}
-                    >
-                      ✕
-                    </button>
+                  <div key={t.id} className="fy-info-row" style={{ fontSize: "0.85rem", flexDirection: "column", alignItems: "flex-start", gap: "0.3rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>👤 {t.nombre_completo} {t.cargo ? `(${t.cargo})` : ""}</span>
+                      <button onClick={() => handleRemoveWorker(t.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c" }}>✕</button>
+                    </div>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.75rem", cursor: "pointer", color: t.tiene_contrato ? "#2ecc71" : "#e74c3c" }}>
+                      <input type="checkbox" checked={t.tiene_contrato} onChange={() => handleToggleContrato(t.id)} />
+                      {t.tiene_contrato ? "Tiene contrato formal" : "Sin contrato (Riesgo multa)"}
+                    </label>
                   </div>
                 ))}
               </div>
@@ -309,6 +397,31 @@ function Vendedor() {
             <button className="fy-btn fy-btn--ghost" onClick={() => setShowAddWorker(true)}>
               <span className="fy-btn__icon" aria-hidden>➕</span> Agregar trabajador
             </button>
+          </article>
+
+          {/* === SUNAT === */}
+          <article className="fy-card" style={{ borderTop: "4px solid #f39c12" }}>
+            <div className="fy-card__head">
+              <div className="fy-card__emoji" aria-hidden style={{ background: "#fcf3cf" }}>🏛️</div>
+              <div>
+                <div className="fy-card__title">Registro SUNAT</div>
+                {dashboard?.registro_tributario ? (
+                  <span style={{ fontSize: "0.8rem", color: "#2ecc71", fontWeight: "bold" }}>RUC Activo</span>
+                ) : (
+                  <span style={{ fontSize: "0.8rem", color: "#e74c3c", fontWeight: "bold" }}>Falta RUC</span>
+                )}
+              </div>
+            </div>
+            {dashboard?.registro_tributario ? (
+              <div style={{ fontSize: "0.85rem", background: "#f9f9f9", padding: "0.5rem", borderRadius: "8px" }}>
+                <div><strong>RUC:</strong> {dashboard.registro_tributario.ruc}</div>
+                <div><strong>Razón:</strong> {dashboard.registro_tributario.razon_social}</div>
+              </div>
+            ) : (
+              <button className="fy-btn" onClick={() => setShowAddSunat(true)} style={{ background: "#f39c12", color: "#fff" }}>
+                <span className="fy-btn__icon" aria-hidden>✅</span> Registrar RUC
+              </button>
+            )}
           </article>
 
           {/* === MI NEGOCIO === */}
@@ -394,6 +507,37 @@ function Vendedor() {
                     {lLoading ? "Solicitando..." : "Solicitar"}
                   </button>
                   <button className="fy-btn fy-btn--outline" type="button" onClick={() => setShowAddLicense(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* === MODAL REGISTRAR SUNAT === */}
+        {showAddSunat && (
+          <div className="fy-modal-overlay" onClick={() => setShowAddSunat(false)}>
+            <div className="fy-modal" onClick={(e) => e.stopPropagation()}>
+              <h2 style={{ marginBottom: "1rem" }}>🏛️ Registrar en SUNAT</h2>
+              <p style={{ fontSize: "0.85rem", marginBottom: "1rem" }}>Registra tu RUC para formalizar tu negocio.</p>
+              {sError && <div className="fy-error" style={{ marginBottom: "0.5rem" }}>❌ {sError}</div>}
+              <form onSubmit={handleAddSunat}>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="s-ruc">Número de RUC (11 dígitos)</label>
+                  <input id="s-ruc" className="fy-input" type="tel" inputMode="numeric" maxLength={11}
+                    value={sRuc} onChange={(e) => setSRuc(e.target.value.replace(/\D/g, ""))} required />
+                </div>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="s-razon">Razón Social</label>
+                  <input id="s-razon" className="fy-input" maxLength={255}
+                    value={sRazon} onChange={(e) => setSRazon(e.target.value)} required />
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+                  <button className="fy-btn" style={{ background: "#f39c12", color: "#fff" }} type="submit" disabled={sLoading}>
+                    {sLoading ? "Validando..." : "Validar y Guardar"}
+                  </button>
+                  <button className="fy-btn fy-btn--outline" type="button" onClick={() => setShowAddSunat(false)}>
                     Cancelar
                   </button>
                 </div>
