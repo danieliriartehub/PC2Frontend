@@ -1,0 +1,415 @@
+/* FormalízaYa — Gamarra-inspired warm market identity */
+
+:root {
+  --color-primary: #F5A623;
+  --color-primary-dark: #D88A0E;
+  --color-primary-soft: #FFE7B8;
+  --color-navy: #1B2E4B;
+  --color-navy-soft: #2A4267;
+  --color-cream: #FFF7EA;
+  --color-paper: #FFFDF7;
+  --color-ink: #2A1F12;
+  --color-muted: #6B5A45;
+  --color-success: #2E9E5B;
+  --color-success-soft: #D9F2E2;
+  --color-warning: #E8A317;
+  --color-warning-soft: #FFEFC2;
+  --color-danger: #C9342E;
+  --color-danger-soft: #FBD9D6;
+  --color-border: #E8DDC6;
+  --color-fabric-1: #C9342E; /* rojo tela */
+  --color-fabric-2: #E8A317; /* mostaza */
+  --color-fabric-3: #2E7D6B; /* verde tela */
+  --color-fabric-4: #6A3FA0; /* morado */
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --shadow-card: 0 6px 18px rgba(27, 46, 75, 0.10);
+  --shadow-press: 0 4px 0 rgba(0,0,0,0.12);
+  --font-sans: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.45;
+  color: var(--color-ink);
+  background: var(--color-cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; }
+
+/* ---------------- App shell ---------------- */
+.fy-app {
+  min-height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--color-cream);
+  position: relative;
+  /* hand-painted market stripe edge */
+  background-image:
+    repeating-linear-gradient(90deg,
+      var(--color-primary) 0 22px,
+      var(--color-fabric-1) 22px 44px,
+      var(--color-navy) 44px 66px,
+      var(--color-fabric-3) 66px 88px);
+  background-size: 100% 6px;
+  background-repeat: no-repeat;
+  background-position: top;
+  padding-top: 6px;
+}
+
+/* ---------------- Header ---------------- */
+.fy-header {
+  background: var(--color-navy);
+  color: #fff;
+  padding: 18px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.fy-header__logo {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  background: var(--color-primary);
+  display: grid; place-items: center;
+  font-size: 26px;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.15);
+}
+.fy-header__text { line-height: 1.1; }
+.fy-header__title {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+.fy-header__title .accent { color: var(--color-primary); }
+.fy-header__tag {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.fy-back {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 22px;
+  padding: 4px 8px 4px 0;
+  cursor: pointer;
+}
+
+/* ---------------- Page ---------------- */
+.fy-page {
+  padding: 22px 20px 120px;
+}
+.fy-h1 {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--color-navy);
+  margin: 4px 0 6px;
+}
+.fy-sub {
+  font-size: 16px;
+  color: var(--color-muted);
+  margin: 0 0 22px;
+}
+
+/* ---------------- Big choice buttons ---------------- */
+.fy-choice {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 22px 20px;
+  margin-bottom: 16px;
+  background: #fff;
+  border: 3px solid var(--color-navy);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-press);
+  cursor: pointer;
+  text-align: left;
+  transition: transform .08s ease;
+}
+.fy-choice:active { transform: translateY(2px); box-shadow: none; }
+.fy-choice--primary {
+  background: var(--color-primary);
+}
+.fy-choice__icon {
+  width: 64px; height: 64px;
+  border-radius: 18px;
+  background: var(--color-navy);
+  color: var(--color-primary);
+  display: grid; place-items: center;
+  font-size: 34px;
+  flex-shrink: 0;
+}
+.fy-choice--primary .fy-choice__icon {
+  background: var(--color-navy);
+  color: #fff;
+}
+.fy-choice__title { font-size: 19px; font-weight: 800; color: var(--color-navy); }
+.fy-choice__hint  { font-size: 14px; color: var(--color-navy); opacity: 0.75; margin-top: 2px; }
+
+/* ---------------- Form fields ---------------- */
+.fy-field { margin-bottom: 22px; }
+.fy-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 17px; font-weight: 800; color: var(--color-navy);
+  margin-bottom: 8px;
+}
+.fy-label__icon { font-size: 22px; }
+.fy-input, .fy-select, .fy-textarea {
+  width: 100%;
+  font-size: 18px;
+  padding: 16px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--color-ink);
+  outline: none;
+}
+.fy-input:focus, .fy-select:focus, .fy-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+.fy-textarea { min-height: 96px; resize: vertical; }
+.fy-help { font-size: 14px; color: var(--color-muted); margin-top: 6px; }
+.fy-error {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-weight: 700;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+/* ---------------- Primary action ---------------- */
+.fy-cta {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: 14px 20px 22px;
+  background: linear-gradient(to top, var(--color-cream) 70%, rgba(255,247,234,0));
+  max-width: 480px;
+  margin: 0 auto;
+}
+.fy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 14px 20px;
+  font-size: 19px;
+  font-weight: 900;
+  border-radius: 16px;
+  border: 0;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: var(--color-navy);
+  box-shadow: 0 4px 0 var(--color-primary-dark);
+  transition: transform .08s ease;
+}
+.fy-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--color-primary-dark); }
+.fy-btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+.fy-btn__icon { font-size: 24px; }
+.fy-btn--ghost {
+  background: #fff;
+  color: var(--color-navy);
+  border: 2px solid var(--color-navy);
+  box-shadow: 0 4px 0 var(--color-navy);
+}
+
+/* ---------------- Dashboard cards ---------------- */
+.fy-cards { display: flex; flex-direction: column; gap: 18px; }
+.fy-card {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  border-top: 6px solid var(--color-primary);
+}
+.fy-card--navy  { border-top-color: var(--color-navy); }
+.fy-card--green { border-top-color: var(--color-fabric-3); }
+.fy-card__head {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+}
+.fy-card__emoji {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: grid; place-items: center;
+  font-size: 30px;
+  background: var(--color-primary-soft);
+}
+.fy-card__title { font-size: 20px; font-weight: 900; color: var(--color-navy); }
+.fy-card__sub   { font-size: 14px; color: var(--color-muted); }
+
+/* ---------------- Traffic light ---------------- */
+.fy-light {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 15px;
+  margin: 6px 0 14px;
+}
+.fy-light__dot { width: 14px; height: 14px; border-radius: 50%; }
+.fy-light--ok      { background: var(--color-success-soft); color: var(--color-success); }
+.fy-light--ok .fy-light__dot      { background: var(--color-success); }
+.fy-light--warn    { background: var(--color-warning-soft); color: #8a6300; }
+.fy-light--warn .fy-light__dot    { background: var(--color-warning); }
+.fy-light--bad     { background: var(--color-danger-soft); color: var(--color-danger); }
+.fy-light--bad .fy-light__dot     { background: var(--color-danger); }
+
+/* ---------------- License screen ---------------- */
+.fy-license-hero {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  padding: 26px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 20px;
+}
+.fy-license-hero__icon {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  margin: 0 auto 14px;
+  font-size: 60px;
+}
+.fy-license-hero--ok   .fy-license-hero__icon { background: var(--color-success-soft); color: var(--color-success); }
+.fy-license-hero--warn .fy-license-hero__icon { background: var(--color-warning-soft); color: #8a6300; }
+.fy-license-hero--bad  .fy-license-hero__icon { background: var(--color-danger-soft); color: var(--color-danger); }
+.fy-license-hero__title { font-size: 24px; font-weight: 900; color: var(--color-navy); margin: 4px 0 6px; }
+.fy-license-hero__days  { font-size: 18px; color: var(--color-muted); }
+.fy-license-hero__days strong { color: var(--color-navy); font-size: 22px; }
+
+.fy-info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px dashed var(--color-border);
+  font-size: 16px;
+}
+.fy-info-row:last-child { border-bottom: 0; }
+.fy-info-row strong { color: var(--color-navy); }
+
+/* ---------------- Loading screen ---------------- */
+.fy-loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+.fy-loading__emoji {
+  font-size: 64px;
+  animation: bob 1.4s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes bob {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.fy-loading__text {
+  font-size: 20px; font-weight: 800; color: var(--color-navy);
+  margin-top: 16px;
+}
+.fy-loading__hint {
+  font-size: 15px; color: var(--color-muted); margin-top: 8px;
+}
+
+/* ---------------- Success screen ---------------- */
+.fy-success-hero {
+  text-align: center;
+  padding: 36px 20px 12px;
+}
+.fy-success-check {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: var(--color-success);
+  color: #fff;
+  display: grid; place-items: center;
+  margin: 0 auto 18px;
+  font-size: 76px;
+  box-shadow: 0 8px 0 #1f7a45;
+  animation: pop .35s ease;
+}
+@keyframes pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.fy-success-title { font-size: 26px; font-weight: 900; color: var(--color-navy); }
+.fy-success-sub { font-size: 16px; color: var(--color-muted); margin-top: 6px; }
+
+.fy-summary {
+  background: var(--color-paper);
+  border: 2px dashed var(--color-primary);
+  border-radius: var(--radius-xl);
+  padding: 18px 18px 6px;
+  margin: 22px 0 0;
+}
+.fy-summary__title {
+  font-size: 14px; font-weight: 800; color: var(--color-primary-dark);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+
+/* ---------------- Welcome hero ---------------- */
+.fy-welcome {
+  background: var(--color-primary);
+  padding: 28px 22px 32px;
+  margin: -22px -20px 24px;
+  border-bottom-left-radius: 28px;
+  border-bottom-right-radius: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.fy-welcome::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 10px;
+  background: repeating-linear-gradient(90deg,
+    var(--color-navy) 0 14px,
+    var(--color-fabric-1) 14px 28px,
+    var(--color-fabric-3) 28px 42px);
+}
+.fy-welcome__kicker {
+  display: inline-block;
+  background: var(--color-navy);
+  color: var(--color-primary);
+  font-size: 13px; font-weight: 800;
+  padding: 6px 12px; border-radius: 999px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.fy-welcome__title {
+  font-size: 30px; font-weight: 900;
+  color: var(--color-navy);
+  margin: 12px 0 6px;
+  line-height: 1.1;
+}
+.fy-welcome__text {
+  font-size: 17px;
+  color: var(--color-navy);
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* ---------------- Steps indicator ---------------- */
+.fy-steps {
+  display: flex; gap: 6px; margin-bottom: 18px;
+}
+.fy-steps__dot {
+  flex: 1; height: 8px; border-radius: 4px;
+  background: var(--color-border);
+}
+.fy-steps__dot.is-active { background: var(--color-primary); }
+.fy-steps__dot.is-done   { background: var(--color-navy); }
+
+/* ---------------- Misc ---------------- */
+a { color: var(--color-navy); }
+.fy-center { text-align: center; }
+.fy-mt { margin-top: 18px; }
