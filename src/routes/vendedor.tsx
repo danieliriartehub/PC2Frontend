@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
+import { API_BASE } from "../lib/api";
 
 export const Route = createFileRoute("/vendedor")({
   head: () => ({ meta: [{ title: "Mi negocio · FormalízaYa" }] }),
@@ -23,27 +24,109 @@ function Light({ estado }: { estado: Estado }) {
   );
 }
 
+interface Negocio {
+  id: number;
+  nombre_negocio: string;
+  tipo: string;
+  rubro: string | null;
+  estado: string;
+  referencia_ubicacion: string | null;
+  galeria_nombre: string | null;
+  stand_numero: string | null;
+}
+
+interface Licencia {
+  id: number;
+  negocio_id: number;
+  numero_licencia: string;
+  tipo_licencia: string;
+  estado: string;
+  fecha_emision: string | null;
+  fecha_vencimiento: string | null;
+  entidad_emisora: string | null;
+}
+
+interface Trabajador {
+  id: number;
+  negocio_id: number;
+  dni: string;
+  nombre_completo: string;
+  cargo: string | null;
+  estado: string;
+}
+
+interface Dashboard {
+  usuario_id: number;
+  nombre: string;
+  rol: string;
+  negocios: Negocio[];
+  licencias: Licencia[];
+  trabajadores: Trabajador[];
+}
+
+function calcEstadoLicencia(lic: Licencia | null): Estado {
+  if (!lic) return "bad";
+  if (lic.estado === "vencida" || lic.estado === "anulada") return "bad";
+  if (lic.estado === "por_vencer") return "warn";
+  if (lic.fecha_vencimiento) {
+    const diff = new Date(lic.fecha_vencimiento).getTime() - Date.now();
+    const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (dias <= 0) return "bad";
+    if (dias <= 30) return "warn";
+  }
+  return "ok";
+}
+
 function Vendedor() {
   const router = useRouter();
-  const [nombre, setNombre] = useState("Vendedor");
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Modal trabajador
+  const [showAddWorker, setShowAddWorker] = useState(false);
+  const [wDni, setWDni] = useState("");
+  const [wNombre, setWNombre] = useState("");
+  const [wCargo, setWCargo] = useState("");
+  const [wLoading, setWLoading] = useState(false);
+  const [wError, setWError] = useState("");
+
+  // Modal licencia
+  const [showAddLicense, setShowAddLicense] = useState(false);
+  const [lTipo, setLTipo] = useState("provisional");
+  const [lEntidad, setLEntidad] = useState("Municipalidad");
+  const [lLoading, setLLoading] = useState(false);
+  const [lError, setLError] = useState("");
+
+  const token = sessionStorage.getItem("fy_token");
 
   useEffect(() => {
-    // Verificar si hay token, si no enviar a login (DevSecOps)
-    const token = sessionStorage.getItem("fy_token");
     if (!token) {
       router.navigate({ to: "/login" });
+      return;
     }
-    
-    // Obtener info del resumen temporal si existe
-    const res = sessionStorage.getItem("fy_resumen");
-    if (res) {
-      try {
-        const parsed = JSON.parse(res);
-        const nom = parsed.items.find((i: any) => i.label === "Negocio")?.value;
-        if (nom) setNombre(nom);
-      } catch(e) {}
+    fetchDashboard();
+  }, [router, token]);
+
+  async function fetchDashboard() {
+    try {
+      const res = await fetch(`${API_BASE}/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 401) {
+        sessionStorage.removeItem("fy_token");
+        router.navigate({ to: "/login" });
+        return;
+      }
+      if (!res.ok) throw new Error("Error cargando datos");
+      const data = await res.json();
+      setDashboard(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  }, [router]);
+  }
 
   function handleLogout() {
     sessionStorage.removeItem("fy_token");
@@ -51,19 +134,118 @@ function Vendedor() {
     router.navigate({ to: "/" });
   }
 
-  // Datos demo — reemplazar con fetch a /licencia, /trabajadores, /negocio
-  const estadoLicencia: Estado = "warn";
+  async function handleAddWorker(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!dashboard || dashboard.negocios.length === 0) return;
+    setWError("");
+    setWLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/trabajadores`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          negocio_id: dashboard.negocios[0].id,
+          dni: wDni,
+          nombre_completo: wNombre,
+          cargo: wCargo || null,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Error al agregar trabajador");
+      }
+      setShowAddWorker(false);
+      setWDni(""); setWNombre(""); setWCargo("");
+      fetchDashboard(); // Refrescar
+    } catch (err: any) {
+      setWError(err.message);
+    } finally {
+      setWLoading(false);
+    }
+  }
+
+  async function handleRemoveWorker(id: number) {
+    if (!confirm("¿Desactivar a este trabajador?")) return;
+    try {
+      await fetch(`${API_BASE}/trabajadores/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchDashboard();
+    } catch {}
+  }
+
+  async function handleAddLicense(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!dashboard || dashboard.negocios.length === 0) return;
+    setLError("");
+    setLLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/licencias`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          negocio_id: dashboard.negocios[0].id,
+          tipo_licencia: lTipo,
+          entidad_emisora: lEntidad,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Error al solicitar licencia");
+      }
+      setShowAddLicense(false);
+      fetchDashboard();
+    } catch (err: any) {
+      setLError(err.message);
+    } finally {
+      setLLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="fy-app">
+        <Header />
+        <main className="fy-page">
+          <div className="fy-loading">
+            <div className="fy-loading__emoji" aria-hidden>⏳</div>
+            <div className="fy-loading__text">Cargando tu información...</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fy-app">
+        <Header />
+        <main className="fy-page">
+          <div className="fy-error" style={{ marginBottom: "1rem" }}>❌ {error}</div>
+          <button className="fy-btn" onClick={() => { setError(""); setLoading(true); fetchDashboard(); }}>
+            Reintentar
+          </button>
+        </main>
+      </div>
+    );
+  }
+
+  const negocio = dashboard?.negocios[0];
+  const licencia = dashboard?.licencias[0] || null;
+  const estadoLicencia = calcEstadoLicencia(licencia);
+  const trabajadores = dashboard?.trabajadores || [];
 
   return (
     <div className="fy-app">
       <Header />
       <main className="fy-page">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 className="fy-h1">Hola, {nombre} 👋</h1>
-          <button 
-            onClick={handleLogout} 
-            className="fy-btn fy-btn--outline" 
-            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', width: 'auto' }}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1 className="fy-h1">Hola, {dashboard?.nombre || "Vendedor"} 👋</h1>
+          <button
+            onClick={handleLogout}
+            className="fy-btn fy-btn--outline"
+            style={{ padding: "0.4rem 0.8rem", fontSize: "0.8rem", width: "auto" }}
           >
             Cerrar Sesión
           </button>
@@ -71,45 +253,154 @@ function Vendedor() {
         <p className="fy-sub">Estas son tus 3 cosas importantes:</p>
 
         <div className="fy-cards">
+          {/* === LICENCIA === */}
           <article className="fy-card">
             <div className="fy-card__head">
               <div className="fy-card__emoji" aria-hidden>📄</div>
               <div>
                 <div className="fy-card__title">Mi licencia</div>
-                <Light estado={estadoLicencia} />
+                {licencia ? (
+                  <Light estado={estadoLicencia} />
+                ) : (
+                  <span style={{ fontSize: "0.8rem", color: "#888" }}>Sin licencia</span>
+                )}
               </div>
             </div>
-            <Link to="/licencia" className="fy-btn">
-              <span className="fy-btn__icon" aria-hidden>👀</span> Ver mi licencia
-            </Link>
+            {licencia ? (
+              <Link to="/licencia" className="fy-btn">
+                <span className="fy-btn__icon" aria-hidden>👀</span> Ver mi licencia
+              </Link>
+            ) : (
+              <button className="fy-btn" onClick={() => setShowAddLicense(true)}>
+                <span className="fy-btn__icon" aria-hidden>📋</span> Solicitar licencia
+              </button>
+            )}
           </article>
 
+          {/* === TRABAJADORES === */}
           <article className="fy-card fy-card--green">
             <div className="fy-card__head">
               <div className="fy-card__emoji" aria-hidden style={{ background: "#D9F2E2" }}>👥</div>
               <div>
                 <div className="fy-card__title">Mis trabajadores</div>
-                <div className="fy-card__sub">Tienes 2 personas registradas</div>
+                <div className="fy-card__sub">
+                  Tienes {trabajadores.length} persona{trabajadores.length !== 1 ? "s" : ""} registrada{trabajadores.length !== 1 ? "s" : ""}
+                </div>
               </div>
             </div>
-            <button className="fy-btn fy-btn--ghost">
+
+            {/* Lista de trabajadores */}
+            {trabajadores.length > 0 && (
+              <div style={{ marginBottom: "0.5rem" }}>
+                {trabajadores.map((t) => (
+                  <div key={t.id} className="fy-info-row" style={{ fontSize: "0.85rem" }}>
+                    <span>👤 {t.nombre_completo} {t.cargo ? `(${t.cargo})` : ""}</span>
+                    <button
+                      onClick={() => handleRemoveWorker(t.id)}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c", fontSize: "0.8rem" }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button className="fy-btn fy-btn--ghost" onClick={() => setShowAddWorker(true)}>
               <span className="fy-btn__icon" aria-hidden>➕</span> Agregar trabajador
             </button>
           </article>
 
+          {/* === MI NEGOCIO === */}
           <article className="fy-card fy-card--navy">
             <div className="fy-card__head">
               <div className="fy-card__emoji" aria-hidden style={{ background: "#E1E8F3" }}>🧺</div>
               <div>
                 <div className="fy-card__title">Mi negocio</div>
-                <div className="fy-card__sub">Modas Rosita · Vendo ropa de mujer</div>
+                <div className="fy-card__sub">
+                  {negocio ? `${negocio.nombre_negocio} · ${negocio.rubro || "Sin rubro"}` : "Sin negocio"}
+                </div>
               </div>
             </div>
-            <button className="fy-btn fy-btn--ghost">
-              <span className="fy-btn__icon" aria-hidden>✏️</span> Cambiar mis datos
-            </button>
+            {negocio && (
+              <div style={{ fontSize: "0.85rem", marginTop: "0.3rem", opacity: 0.8 }}>
+                {negocio.tipo === "galeria" && negocio.galeria_nombre && (
+                  <div>🏬 Galería: {negocio.galeria_nombre} - Stand {negocio.stand_numero}</div>
+                )}
+                {negocio.referencia_ubicacion && (
+                  <div>📍 {negocio.referencia_ubicacion}</div>
+                )}
+              </div>
+            )}
           </article>
         </div>
+
+        {/* === MODAL AGREGAR TRABAJADOR === */}
+        {showAddWorker && (
+          <div className="fy-modal-overlay" onClick={() => setShowAddWorker(false)}>
+            <div className="fy-modal" onClick={(e) => e.stopPropagation()}>
+              <h2 style={{ marginBottom: "1rem" }}>➕ Agregar Trabajador</h2>
+              {wError && <div className="fy-error" style={{ marginBottom: "0.5rem" }}>❌ {wError}</div>}
+              <form onSubmit={handleAddWorker}>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="w-dni">DNI (8 dígitos)</label>
+                  <input id="w-dni" className="fy-input" type="tel" inputMode="numeric" maxLength={8}
+                    value={wDni} onChange={(e) => setWDni(e.target.value.replace(/\D/g, ""))} required />
+                </div>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="w-nombre">Nombre completo</label>
+                  <input id="w-nombre" className="fy-input" maxLength={255}
+                    value={wNombre} onChange={(e) => setWNombre(e.target.value)} required />
+                </div>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="w-cargo">Cargo (opcional)</label>
+                  <input id="w-cargo" className="fy-input" maxLength={100}
+                    value={wCargo} onChange={(e) => setWCargo(e.target.value)} />
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+                  <button className="fy-btn" type="submit" disabled={wLoading}>
+                    {wLoading ? "Guardando..." : "Guardar"}
+                  </button>
+                  <button className="fy-btn fy-btn--outline" type="button" onClick={() => setShowAddWorker(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* === MODAL SOLICITAR LICENCIA === */}
+        {showAddLicense && (
+          <div className="fy-modal-overlay" onClick={() => setShowAddLicense(false)}>
+            <div className="fy-modal" onClick={(e) => e.stopPropagation()}>
+              <h2 style={{ marginBottom: "1rem" }}>📋 Solicitar Licencia</h2>
+              {lError && <div className="fy-error" style={{ marginBottom: "0.5rem" }}>❌ {lError}</div>}
+              <form onSubmit={handleAddLicense}>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="l-tipo">Tipo de licencia</label>
+                  <select id="l-tipo" className="fy-input" value={lTipo} onChange={(e) => setLTipo(e.target.value)}>
+                    <option value="provisional">Provisional (1 año)</option>
+                    <option value="definitiva">Definitiva (5 años)</option>
+                  </select>
+                </div>
+                <div className="fy-field">
+                  <label className="fy-label" htmlFor="l-entidad">Entidad emisora</label>
+                  <input id="l-entidad" className="fy-input" maxLength={255}
+                    value={lEntidad} onChange={(e) => setLEntidad(e.target.value)} />
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
+                  <button className="fy-btn" type="submit" disabled={lLoading}>
+                    {lLoading ? "Solicitando..." : "Solicitar"}
+                  </button>
+                  <button className="fy-btn fy-btn--outline" type="button" onClick={() => setShowAddLicense(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

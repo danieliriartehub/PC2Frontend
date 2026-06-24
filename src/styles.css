@@ -413,3 +413,45 @@ button { font-family: inherit; }
 a { color: var(--color-navy); }
 .fy-center { text-align: center; }
 .fy-mt { margin-top: 18px; }
+
+/* ---------------- Modal ---------------- */
+.fy-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  animation: fadeIn .2s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fy-modal {
+  background: var(--color-paper);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------------- Outline button ---------------- */
+.fy-btn--outline {
+  background: transparent;
+  color: var(--color-navy);
+  border: 2px solid var(--color-navy);
+  box-shadow: none;
+  min-height: auto;
+}
+.fy-btn--outline:active {
+  background: var(--color-navy);
+  color: #fff;
+}
