@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header } from "../components/Header";
-import { apiPost } from "../lib/api";
+import { apiPost, API_BASE } from "../lib/api";
 
 export const Route = createFileRoute("/registro-ambulante")({
   head: () => ({ meta: [{ title: "Registro · FormalízaYa" }] }),
@@ -50,7 +50,7 @@ function RegistroAmbulante() {
     setLoading(true);
     try {
       // POST /negocios/registrar_ambulante  (FastAPI)
-      const res = await fetch("https://pc2backend-production.up.railway.app/api/negocios/registrar_ambulante", {
+      const res = await fetch(`${API_BASE}/negocios/registrar_ambulante`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dni, correo, password, negocio, rubro, referencia }),

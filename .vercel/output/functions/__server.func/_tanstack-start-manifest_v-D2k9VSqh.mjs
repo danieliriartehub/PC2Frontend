@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-CFHhsNvS.js
+//#region node_modules/.nitro/vite/services/ssr/assets/_tanstack-start-manifest_v-D2k9VSqh.js
 var tsrStartManifest = () => ({ routes: {
 	__root__: {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/__root.tsx",
@@ -13,57 +13,57 @@ var tsrStartManifest = () => ({ routes: {
 			"/reset",
 			"/vendedor"
 		],
-		preloads: ["/assets/index-1IhMKExQ.js"],
+		preloads: ["/assets/index-CmOsFyXx.js"],
 		scripts: [{ attrs: {
 			type: "module",
 			async: !0,
-			src: "/assets/index-1IhMKExQ.js"
+			src: "/assets/index-CmOsFyXx.js"
 		} }]
 	},
 	"/": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/index.tsx",
 		children: void 0,
-		preloads: ["/assets/routes-CamI7fR2.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/routes-CKY5tT_T.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/confirmacion": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/confirmacion.tsx",
 		children: void 0,
-		preloads: ["/assets/confirmacion-BJYfuTJi.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/confirmacion-B6c-5e3o.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/licencia": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/licencia.tsx",
 		children: void 0,
-		preloads: ["/assets/licencia-C0g_NiB8.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/licencia-C7JZBdrd.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/login": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/login.tsx",
 		children: void 0,
-		preloads: ["/assets/login-Cgq640cI.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/login-Cx0zCyao.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/recuperar": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/recuperar.tsx",
 		children: void 0,
-		preloads: ["/assets/recuperar-COALssVo.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/recuperar-B-rrZz3B.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/registro-ambulante": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/registro-ambulante.tsx",
 		children: void 0,
-		preloads: ["/assets/registro-ambulante-BaTvbHuV.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/registro-ambulante-a0effwuP.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/registro-galeria": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/registro-galeria.tsx",
 		children: void 0,
-		preloads: ["/assets/registro-galeria-CJ7TPA9D.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/registro-galeria-C59TXgGo.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/reset": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/reset.tsx",
 		children: void 0,
-		preloads: ["/assets/reset-CksH2RoQ.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/reset-DD0PFjzv.js", "/assets/Header-WJYWaR4p.js"]
 	},
 	"/vendedor": {
 		filePath: "C:/Users/danie/OneDrive/Old Info and Desktop/Desktop/BASE PC2/PCFrontend/src/routes/vendedor.tsx",
 		children: void 0,
-		preloads: ["/assets/vendedor-WO-A90gi.js", "/assets/Header-CHlBOxWZ.js"]
+		preloads: ["/assets/vendedor-Cl_yDRpc.js", "/assets/Header-WJYWaR4p.js"]
 	}
 } });
 //#endregion

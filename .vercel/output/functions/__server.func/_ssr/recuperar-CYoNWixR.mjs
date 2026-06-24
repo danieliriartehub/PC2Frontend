@@ -2,7 +2,7 @@ import { r as __toESM } from "../_runtime.mjs";
 import { n as require_jsx_runtime, r as require_react } from "../_libs/react+tanstack__react-query.mjs";
 import { M as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as Header } from "./Header-BY2QOExE.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/recuperar-BGAP5Bqv.js
+//#region node_modules/.nitro/vite/services/ssr/assets/recuperar-CYoNWixR.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function Recuperar() {
@@ -20,7 +20,7 @@ function Recuperar() {
 		setError("");
 		setLoading(true);
 		try {
-			if (!(await fetch(`/api/auth/recuperar_password`, {
+			if (!(await fetch("https://pc2backend-production.up.railway.app/api/auth/recuperar_password", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ correo })

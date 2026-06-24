@@ -2,7 +2,7 @@ import { r as __toESM } from "../_runtime.mjs";
 import { n as require_jsx_runtime, r as require_react } from "../_libs/react+tanstack__react-query.mjs";
 import { M as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as Header } from "./Header-BY2QOExE.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/reset-Cza-u72B.js
+//#region node_modules/.nitro/vite/services/ssr/assets/reset-Blgpt-w2.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ResetPassword() {
@@ -29,7 +29,7 @@ function ResetPassword() {
 		}
 		setLoading(true);
 		try {
-			const res = await fetch(`/api/auth/reset_password`, {
+			const res = await fetch("https://pc2backend-production.up.railway.app/api/auth/reset_password", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({

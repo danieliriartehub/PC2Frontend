@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header } from "../components/Header";
+import { API_BASE } from "../lib/api";
 
 export const Route = createFileRoute("/recuperar")({
   head: () => ({ meta: [{ title: "Recuperar Contraseña · FormalízaYa" }] }),
@@ -24,7 +25,7 @@ function Recuperar() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://pc2backend-production.up.railway.app/api/auth/recuperar_password", {
+      const res = await fetch(`${API_BASE}/auth/recuperar_password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo }),

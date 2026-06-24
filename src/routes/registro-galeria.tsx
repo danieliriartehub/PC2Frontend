@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Header } from "../components/Header";
-import { apiPost } from "../lib/api";
+import { apiPost, API_BASE } from "../lib/api";
 
 export const Route = createFileRoute("/registro-galeria")({
   head: () => ({ meta: [{ title: "Registro galería · FormalízaYa" }] }),
@@ -51,7 +51,7 @@ function RegistroGaleria() {
     if (!validar()) return;
     setLoading(true);
     try {
-      const res = await fetch("https://pc2backend-production.up.railway.app/api/negocios/registrar_galeria", {
+      const res = await fetch(`${API_BASE}/negocios/registrar_galeria`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dni, correo, password, negocio, rubro, galeria_nombre, stand_numero }),

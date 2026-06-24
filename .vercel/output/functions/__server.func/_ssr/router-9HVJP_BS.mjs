@@ -2,7 +2,7 @@ import { r as __toESM } from "../_runtime.mjs";
 import { n as require_jsx_runtime, r as require_react, t as QueryClientProvider } from "../_libs/react+tanstack__react-query.mjs";
 import { M as useRouter, c as HeadContent, d as Outlet, f as lazyRouteComponent, h as Link, m as createRootRouteWithContext, p as createFileRoute, s as Scripts, u as createRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-Bj_4l5ub.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-9HVJP_BS.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var styles_default = "/assets/styles-ic6Nc9Xw.css";
@@ -167,27 +167,27 @@ var Route$8 = createFileRoute("/vendedor")({
 	head: () => ({ meta: [{ title: "Mi negocio · FormalízaYa" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$8, "component")
 });
-var $$splitComponentImporter$7 = () => import("./reset-Cza-u72B.mjs");
+var $$splitComponentImporter$7 = () => import("./reset-Blgpt-w2.mjs");
 var Route$7 = createFileRoute("/reset")({
 	head: () => ({ meta: [{ title: "Nueva Contraseña · FormalízaYa" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$7, "component")
 });
-var $$splitComponentImporter$6 = () => import("./registro-galeria-reQsadKk.mjs");
+var $$splitComponentImporter$6 = () => import("./registro-galeria-Duvd7hXO.mjs");
 var Route$6 = createFileRoute("/registro-galeria")({
 	head: () => ({ meta: [{ title: "Registro galería · FormalízaYa" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-var $$splitComponentImporter$5 = () => import("./registro-ambulante-CFshWj4P.mjs");
+var $$splitComponentImporter$5 = () => import("./registro-ambulante-CNafislQ.mjs");
 var Route$5 = createFileRoute("/registro-ambulante")({
 	head: () => ({ meta: [{ title: "Registro · FormalízaYa" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
-var $$splitComponentImporter$4 = () => import("./recuperar-BGAP5Bqv.mjs");
+var $$splitComponentImporter$4 = () => import("./recuperar-CYoNWixR.mjs");
 var Route$4 = createFileRoute("/recuperar")({
 	head: () => ({ meta: [{ title: "Recuperar Contraseña · FormalízaYa" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$4, "component")
 });
-var $$splitComponentImporter$3 = () => import("./login-DZHQ0QXK.mjs");
+var $$splitComponentImporter$3 = () => import("./login-BUdXXhMx.mjs");
 var Route$3 = createFileRoute("/login")({
 	head: () => ({ meta: [{ title: "Iniciar Sesión · FormalízaYa" }] }),
 	component: lazyRouteComponent($$splitComponentImporter$3, "component")

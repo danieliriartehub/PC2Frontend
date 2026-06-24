@@ -2,7 +2,7 @@ import { r as __toESM } from "../_runtime.mjs";
 import { n as require_jsx_runtime, r as require_react } from "../_libs/react+tanstack__react-query.mjs";
 import { M as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as Header } from "./Header-BY2QOExE.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/registro-galeria-reQsadKk.js
+//#region node_modules/.nitro/vite/services/ssr/assets/registro-ambulante-CNafislQ.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var RUBROS = [
@@ -37,15 +37,14 @@ var RUBROS = [
 		emoji: "🧵"
 	}
 ];
-function RegistroGaleria() {
+function RegistroAmbulante() {
 	const router = useRouter();
 	const [dni, setDni] = (0, import_react.useState)("");
 	const [correo, setCorreo] = (0, import_react.useState)("");
 	const [password, setPassword] = (0, import_react.useState)("");
 	const [negocio, setNegocio] = (0, import_react.useState)("");
 	const [rubro, setRubro] = (0, import_react.useState)("");
-	const [galeria_nombre, setGaleriaNombre] = (0, import_react.useState)("");
-	const [stand_numero, setStandNumero] = (0, import_react.useState)("");
+	const [referencia, setReferencia] = (0, import_react.useState)("");
 	const [errors, setErrors] = (0, import_react.useState)({});
 	const [loading, setLoading] = (0, import_react.useState)(false);
 	const [serverError, setServerError] = (0, import_react.useState)("");
@@ -56,8 +55,7 @@ function RegistroGaleria() {
 		if (password.length < 6) e.password = "La contraseña debe tener al menos 6 caracteres";
 		if (negocio.trim().length < 2) e.negocio = "Escribe el nombre de tu negocio";
 		if (!rubro) e.rubro = "Elige qué vendes";
-		if (galeria_nombre.trim().length < 2) e.galeria_nombre = "Escribe el nombre de la galería";
-		if (!stand_numero.trim()) e.stand_numero = "Escribe el número de stand/puesto";
+		if (referencia.trim().length < 4) e.referencia = "Cuéntanos dónde vendes (ejemplo: frente a Los Andes)";
 		setErrors(e);
 		return Object.keys(e).length === 0;
 	}
@@ -67,7 +65,7 @@ function RegistroGaleria() {
 		if (!validar()) return;
 		setLoading(true);
 		try {
-			const res = await fetch(`/api/negocios/registrar_galeria`, {
+			const res = await fetch("https://pc2backend-production.up.railway.app/api/negocios/registrar_ambulante", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -76,8 +74,7 @@ function RegistroGaleria() {
 					password,
 					negocio,
 					rubro,
-					galeria_nombre,
-					stand_numero
+					referencia
 				})
 			});
 			if (!res.ok) {
@@ -85,7 +82,7 @@ function RegistroGaleria() {
 				throw new Error(errorData.detail || "Ocurrió un error al registrarse");
 			}
 			const resumen = {
-				tipo: "galeria",
+				tipo: "ambulante",
 				items: [
 					{
 						label: "DNI",
@@ -101,7 +98,7 @@ function RegistroGaleria() {
 					},
 					{
 						label: "Ubicación",
-						value: `${galeria_nombre} - Stand ${stand_numero}`
+						value: referencia
 					}
 				],
 				next: "/login"
@@ -146,6 +143,14 @@ function RegistroGaleria() {
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
 			className: "fy-page",
 			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "fy-steps",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fy-steps__dot is-active" }),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fy-steps__dot" }),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "fy-steps__dot" })
+					]
+				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
 					className: "fy-h1",
 					children: "Cuéntanos de ti"
@@ -168,19 +173,20 @@ function RegistroGaleria() {
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "fy-label",
-									htmlFor: "ruc",
+									htmlFor: "dni",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "fy-label__icon",
 										"aria-hidden": true,
-										children: "🧾"
-									}), " Tu RUC"]
+										children: "🪪"
+									}), " Tu DNI"]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									id: "ruc",
+									id: "dni",
 									className: "fy-input",
 									type: "tel",
 									inputMode: "numeric",
-									maxLength: 11,
+									pattern: "[0-9]*",
+									maxLength: 8,
 									value: dni,
 									onChange: (e) => setDni(e.target.value.replace(/\D/g, "")),
 									placeholder: "Ej. 12345678"
@@ -312,49 +318,27 @@ function RegistroGaleria() {
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
 									className: "fy-label",
-									htmlFor: "gal",
+									htmlFor: "ref",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "fy-label__icon",
 										"aria-hidden": true,
-										children: "🏬"
-									}), " Nombre de la galería"]
+										children: "📍"
+									}), " ¿Dónde vendes?"]
 								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									id: "gal",
-									className: "fy-input",
-									value: galeria_nombre,
-									onChange: (e) => setGaleriaNombre(e.target.value),
-									placeholder: "Ej. Galería Los Andes"
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+									id: "ref",
+									className: "fy-textarea",
+									value: referencia,
+									onChange: (e) => setReferencia(e.target.value),
+									placeholder: "Ej. Frente a la galería Los Andes, cuadra 3"
 								}),
-								errors.galeria_nombre && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "fy-help",
+									children: "Cuéntanos en tus palabras. No necesitas dirección exacta."
+								}),
+								errors.referencia && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "fy-error",
-									children: ["⚠️ ", errors.galeria_nombre]
-								})
-							]
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "fy-field",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									className: "fy-label",
-									htmlFor: "stand",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "fy-label__icon",
-										"aria-hidden": true,
-										children: "🔢"
-									}), " Número de stand"]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									id: "stand",
-									className: "fy-input",
-									inputMode: "numeric",
-									value: stand_numero,
-									onChange: (e) => setStandNumero(e.target.value),
-									placeholder: "Ej. 214"
-								}),
-								errors.stand_numero && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "fy-error",
-									children: ["⚠️ ", errors.stand_numero]
+									children: ["⚠️ ", errors.referencia]
 								})
 							]
 						})
@@ -377,4 +361,4 @@ function RegistroGaleria() {
 	});
 }
 //#endregion
-export { RegistroGaleria as component };
+export { RegistroAmbulante as component };

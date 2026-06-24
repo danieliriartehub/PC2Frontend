@@ -1,6 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Header } from "../components/Header";
+import { API_BASE } from "../lib/api";
 
 export const Route = createFileRoute("/reset")({
   head: () => ({ meta: [{ title: "Nueva Contraseña · FormalízaYa" }] }),
@@ -37,7 +38,7 @@ function ResetPassword() {
 
     setLoading(true);
     try {
-      const res = await fetch("https://pc2backend-production.up.railway.app/api/auth/reset_password", {
+      const res = await fetch(`${API_BASE}/auth/reset_password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo, codigo, new_password: password }),
