@@ -51,7 +51,7 @@ function RegistroGaleria() {
     if (!validar()) return;
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "/api"}/negocios/registrar_galeria`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "https://pc2backend-production.up.railway.app/api"}/negocios/registrar_galeria`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dni, correo, password, negocio, rubro, galeria_nombre, stand_numero }),

@@ -50,7 +50,7 @@ function RegistroAmbulante() {
     setLoading(true);
     try {
       // POST /negocios/registrar_ambulante  (FastAPI)
-      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "/api"}/negocios/registrar_ambulante`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE ?? "https://pc2backend-production.up.railway.app/api"}/negocios/registrar_ambulante`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dni, correo, password, negocio, rubro, referencia }),
